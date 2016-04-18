@@ -3,7 +3,18 @@
   
   <url>
     <loc>http://heychenbin.github.io/blog/</loc>
+    <lastmod>2016-04-18T22:35:59+08:00</lastmod>
     <priority>0</priority>
+  </url>
+  
+  <url>
+    <loc>http://heychenbin.github.io/blog/post/hello-world-again/</loc>
+    <lastmod>2016-04-18T22:35:59+08:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>http://heychenbin.github.io/blog/post/hello-world/</loc>
+    <lastmod>2016-04-18T22:35:55+08:00</lastmod>
   </url>
   
 </urlset>
