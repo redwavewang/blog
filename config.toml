@@ -1,0 +1,7 @@
+baseurl = "https://heychenbin.github.io/"
+languageCode = "zh-cn"
+title = "Mount ./Notes /Dev/BRAIN"
+
+[Params]
+    Author = "Chenbin"
+    disqusShortname = "gochenbin"
