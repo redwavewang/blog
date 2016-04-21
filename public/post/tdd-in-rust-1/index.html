@@ -1,0 +1,1139 @@
+<div class="single">
+  <!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="generator" content="Hugo 0.15" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1">
+    
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="//cdn.bootcss.com/highlight.js/9.1.0/styles/solarized_dark.min.css">
+    <link rel="stylesheet" href="https://heychenbin.github.io/css/styles.css">
+    <link rel="stylesheet" href="https://heychenbin.github.io/css/custom.css">
+    <link rel="alternate" type="application/rss+xml" title="RSS" href="https://heychenbin.github.io//index.xml">
+
+    
+    <title>TDD in Rust - Mount ./Notes /Dev/BRAIN</title>
+    <meta property='og:title' content="TDD in Rust - Mount ./Notes /Dev/BRAIN">
+    <meta property="og:type" content="article">
+    
+
+    <meta property="og:url" content="https://heychenbin.github.io/post/tdd-in-rust-1/">
+    
+    <meta property="og:image" content="https://heychenbin.github.io/images/views.jpg">
+
+  </head>
+
+  <body>
+
+    <header class="site">
+      <div class="title"><a href="https://heychenbin.github.io/">Mount ./Notes /Dev/BRAIN</a></div>
+    </header>
+
+    <div class="container site">
+
+
+  <div class="row">
+    <div class="col-sm-9">
+
+      <article class="single" itemscope="itemscope" itemtype="http://schema.org/Article">
+
+        <meta itemprop="mainEntityOfPage"  itemType="https://schema.org/WebPage" content="https://heychenbin.github.io/"/>
+        <meta itemprop="dateModified" content="2016-04-20T09:46:25&#43;08:00">
+        <meta itemprop="headline" content="TDD in Rust">
+        <meta itemprop="description" content="Intro Rust 是一门系统编程语言,目标是帮助程序员写出安全,快速的代码. Cargo Cargo是Rust中的包管理器,默认集成在安装包里边.通过使用Cargo可以方便管理Rust中的依赖,进行单元测试以及构建版本. 创建项目 首先通过Cargo创建一个项目calc: Cargo create calc --bin 这会在当前目录下生成一个calc的目录,在该目录下的src文件夹下有一个main.rs,就是我们的主程序代码了.这个其中包括了一个简单的hello world程序,我们运行一下看看: cd calc Cargo run 输出: Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc) Running `target\debug\calc.exe` Hello, world! Cargo会自动编译当前项目的代码并生成exe程序执行. 计算器 下面以计算器为示例,介绍Rust的一些基本特性和用法.通常我学习一门新语言都会使用这么语言编写一些代码作为练习,现在我比较喜欢编写四则运算器来作为练习. 我希望达到的效果是实现四则运算,支持括号,加减乘除以及正负号等操作: &gt; 1 &#43; 2 * (3-1) = 5 &gt; 9 &#43;-&#43;---&#43;&#43;&#43;---8 = 1 我以TDD的方式来实现这样一个程序. 测试用例 Rust一个很好的特性就是集成了单元测试工具,可以很方便我们做TDD编程,在我们的main.rs最后增加如下代码: #[cfg(test)] mod tests { #[test] fn test_plus() { assert_eq!(1, 0); } } 通过Cargo进行测试: Cargo test 输出: Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc) Running D:\home\Projects\tmp\calc\target\debug\calc-a5ab18be1f87e4e3.exe running 1 test test tests::test_plus ...">
+        <meta itemprop="url" content="https://heychenbin.github.io/post/tdd-in-rust-1/">
+        <div itemprop="image" itemscope itemtype="https://schema.org/ImageObject">
+          <meta itemprop="url" content="https://heychenbin.github.io/images/views.jpg" />
+          <meta itemprop="width" content="800">
+          <meta itemprop="height" content="800">
+        </div>
+        <div itemprop="publisher" itemscope itemtype="https://schema.org/Organization">
+          <div itemprop="logo" itemscope itemtype="https://schema.org/ImageObject">
+            <meta itemprop="url" content="https://heychenbin.github.io/images/logo.jpg">
+            <meta itemprop="width" content="100">
+            <meta itemprop="height" content="100">
+          </div>
+          <meta itemprop="name" content="Mount ./Notes /Dev/BRAIN">
+        </div>
+        <div itemprop="author" itemscope itemtype="https://schema.org/Person">
+          <meta itemprop="name" content="Chenbin">
+        </div>
+
+        <div class="image" style="background-image: url(https://heychenbin.github.io/images/views.jpg);"></div>
+
+        <header class="article-header">
+          <time itemprop="datePublished" pubdate="pubdate" datetime="2016-04-20T09:46:25&#43;08:00">Wed, Apr 20, 2016</time>
+          <h1 class="article-title">TDD in Rust</h1>
+        </header>
+
+        <div class="article-body" itemprop="articleBody">
+          
+
+<h2 id="intro:4fd93554da16c084d4fa7a87fc116057">Intro</h2>
+
+<p>Rust 是一门系统编程语言,目标是帮助程序员写出安全,快速的代码.</p>
+
+<h2 id="cargo:4fd93554da16c084d4fa7a87fc116057">Cargo</h2>
+
+<p>Cargo是Rust中的包管理器,默认集成在安装包里边.通过使用Cargo可以方便管理Rust中的依赖,进行单元测试以及构建版本.</p>
+
+<h3 id="创建项目:4fd93554da16c084d4fa7a87fc116057">创建项目</h3>
+
+<p>首先通过Cargo创建一个项目calc:</p>
+
+<pre><code class="language-sh">Cargo create calc --bin
+</code></pre>
+
+<p>这会在当前目录下生成一个calc的目录,在该目录下的src文件夹下有一个main.rs,就是我们的主程序代码了.这个其中包括了一个简单的hello world程序,我们运行一下看看:</p>
+
+<pre><code class="language-sh">cd calc
+Cargo run
+</code></pre>
+
+<p>输出:</p>
+
+<pre><code>   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running `target\debug\calc.exe`
+Hello, world!
+</code></pre>
+
+<p>Cargo会自动编译当前项目的代码并生成exe程序执行.</p>
+
+<h2 id="计算器:4fd93554da16c084d4fa7a87fc116057">计算器</h2>
+
+<p>下面以计算器为示例,介绍Rust的一些基本特性和用法.通常我学习一门新语言都会使用这么语言编写一些代码作为练习,现在我比较喜欢编写四则运算器来作为练习.</p>
+
+<p>我希望达到的效果是实现四则运算,支持括号,加减乘除以及正负号等操作:</p>
+
+<pre><code>&gt; 1 + 2 * (3-1)
+= 5
+
+&gt; 9 +-+---+++---8
+= 1
+</code></pre>
+
+<p>我以TDD的方式来实现这样一个程序.</p>
+
+<h3 id="测试用例:4fd93554da16c084d4fa7a87fc116057">测试用例</h3>
+
+<p>Rust一个很好的特性就是集成了单元测试工具,可以很方便我们做TDD编程,在我们的main.rs最后增加如下代码:</p>
+
+<pre><code class="language-Rust">#[cfg(test)]
+mod tests {
+    #[test]
+    fn test_plus() {
+        assert_eq!(1, 0);
+    }
+}
+</code></pre>
+
+<p>通过Cargo进行测试:</p>
+
+<pre><code>Cargo test
+</code></pre>
+
+<p>输出:</p>
+
+<pre><code>   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running D:\home\Projects\tmp\calc\target\debug\calc-a5ab18be1f87e4e3.exe
+
+running 1 test
+test tests::test_plus ... FAILED
+
+failures:
+
+---- tests::test_plus stdout ----
+    thread 'tests::test_plus' panicked at 'assertion failed: `(left == right)` (left: `1`, right: `0`)', main.rs:13
+
+
+failures:
+    tests::test_plus
+
+test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured
+</code></pre>
+
+<p>可以看到,Cargo会自动编译代码并运行测试用例输出结果.</p>
+
+<h3 id="简单加法:4fd93554da16c084d4fa7a87fc116057">简单加法</h3>
+
+<p>下一步,我们开始实现计算器,首先最简单的测试用例:1 + 1 = 2.</p>
+
+<pre><code class="language-Rust">#[cfg(test)]
+mod tests {
+    fn calc(expr: &amp;str) -&gt; i32 {
+        let mut interpreter = Interpreter::new(String::from(expr));
+        interpreter.interpret()
+    }
+
+    #[test]
+    fn test_plus() {
+        assert_eq!(calc(&quot;1+1&quot;), 2);
+    }
+}
+</code></pre>
+
+<p>首先,我们设计解析器入口,输入为一个计算表达式字符串,解释器包含一个方法interpret用于计算输入的表达式.</p>
+
+<p>测试用例中,我们测试简单的 1+1=2.</p>
+
+<p>下面可以开始设计代码了.为了方便解析,我们首先定义一系列Token表示解析表达式的类型信息:</p>
+
+<pre><code class="language-Rust">#[derive(Clone, Debug, Eq, PartialEq)]
+enum Token {
+    INTEGER(i32),
+    PLUS,
+    EOF,
+}
+</code></pre>
+
+<p>在Rust中,enum和C/C++中的枚举类似,但是功能更加强大,可以为枚举添加更多信息,在匹配时可支持模式匹配,功能非常强大.</p>
+
+<p>#[derive(Clone, Debug, Eq, PartialEq)] 这一段信息用于描述当前enum的一些附加属性,我们添加了Clone,Debug等几个属性,提示编译器为当前enum添加了复制,打印调试信息等功能.</p>
+
+<p>第一个属性INTEGER(i32),表示数字,数字有一个属性为32位int,这里就是我们的解析出来的数字了.</p>
+
+<p>下一步,定义我们的解析器:</p>
+
+<pre><code class="language-Rust">pub struct Interpreter {
+    text: String,
+    pos: usize,
+    current_char: Option&lt;char&gt;,
+}
+</code></pre>
+
+<p>Rust中使用struct来定义一个类型,当前的Interpreter包含三个属性,分别是输入字符,当前解析位置,和当前字符,前面两个属性类型都很好理解.最后一个类型为Option,这个Option在Rust中也是一个enum类型:</p>
+
+<pre><code class="language-Rust">pub enum Option&lt;T&gt; {
+    None,
+    Some(T)
+}
+</code></pre>
+
+<p>源码中这样定义Option,可以看到他要么是一个None,要么是一个类型为T的值,在Rust中可以经常看到这样的表示方式,后续我们在看如何使用.</p>
+
+<pre><code class="language-Rust">impl Interpreter {
+    // 1
+    fn new(text: String) -&gt; Interpreter {
+        let mut interpreter = Interpreter {
+            text: text,
+            pos: 0,
+            current_char: None,
+        };
+        if interpreter.text.len() &gt; 0 {
+            interpreter.current_char = Some(interpreter.text.as_bytes()[0] as char);
+        }
+        interpreter
+    }
+
+    fn advance(&amp;mut self) {
+        self.pos += 1;
+        if self.pos &gt; self.text.len()-1 {
+            self.current_char = None;
+        } else {
+            // 2
+            self.current_char = Some(self.text.as_bytes()[self.pos] as char);
+        }
+    }
+
+    fn next_token(&amp;mut self) -&gt; Token {
+        while let Some(c) = self.current_char {
+            if c.is_digit(10) {
+                self.advance();
+                // 3
+                return Token::INTEGER(c.to_digit(10).unwrap() as i32);
+            }
+
+            match c {
+                '+' =&gt; {
+                    self.advance();
+                    return Token::PLUS;
+                },
+                // 4
+                _ =&gt; panic!(&quot;Invalid char&quot;),
+            }
+        }
+        Token::EOF
+    }
+
+    fn expr(&amp;mut self) -&gt; i32 {
+        let lhs = match self.next_token() {
+            Token::INTEGER(i) =&gt; i,
+            _ =&gt; panic!(&quot;Invalid num&quot;),
+
+        };
+
+        let _ = self.next_token();
+
+        let rhs = match self.next_token() {
+            Token::INTEGER(i) =&gt; i,
+            _ =&gt; panic!(&quot;Invalid num&quot;),
+        };
+
+        lhs + rhs
+    }
+
+    fn interpret(&amp;mut self) -&gt; i32 {
+        self.expr()
+    }
+}
+</code></pre>
+
+<pre><code>1. 上面这个方法就是实例化一个Interpreter类型的方法new,Rust中默认使用new方法来初始化一个类型.在这段的末尾,单独一个interpreter表示返回该值.这也是Rust的一个特性,最后一条语句不带分号结束为返回值.
+2. 这里使用Option中的Some()来表示
+3. 使用枚举中的INTEGER(i32)来表示解析出来的值,后续通过匹配就能够直接获取这个值
+4. Rust使用match来进行匹配,有点类似于C/C++中的switch,只是功能更强大.match默认情况下不会像C/C++一样匹配后不break则会继续运行下一个分支,默认只会匹配一个分支然后自动break,default分支使用 _ =&gt; 来表示.
+</code></pre>
+
+<p>实现以上代码后,再次在命令行中执行:</p>
+
+<pre><code class="language-sh">cargo test
+</code></pre>
+
+<p>输出为:</p>
+
+<pre><code>   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running target\debug\calc-cf9c4ad57c782c3c.exe
+
+running 1 test
+test tests::test_plus ... ok
+
+test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured
+</code></pre>
+
+<p>可以看到测试通过,我们第一个测试用例1+1=2也就测试成功了.</p>
+
+<h3 id="简单减法:4fd93554da16c084d4fa7a87fc116057">简单减法</h3>
+
+<p>下一步,我们实现简单减法,也就是一位数的减法,首先更新测试用例:</p>
+
+<pre><code class="language-rust">#[test]
+fn test_minus() {
+    assert_eq!(calc(&quot;1-1&quot;), 0);
+    assert_eq!(calc(&quot;1-2&quot;), -1);
+    assert_eq!(calc(&quot;2-1&quot;), 1);
+}
+</code></pre>
+
+<p>为了实现减法,需要增加一个Token类型:</p>
+
+<pre><code class="language-rust">enum Token {
+    INTEGER(i32),
+    PLUS,
+    MINUS,
+    EOF,
+}
+</code></pre>
+
+<p>重构一下Interpreter代码:</p>
+
+<pre><code class="language-rust">fn next_token(&amp;mut self) -&gt; Token {
+    // 1
+    while let Some(c) = self.current_char {
+        if c.is_digit(10) {
+            self.advance();
+            return Token::INTEGER(c.to_digit(10).unwrap() as i32);
+        }
+        match c {
+            '+' =&gt; {
+                self.advance();
+                return Token::PLUS;
+            },
+            // 2
+            '-' =&gt; {
+                self.advance();
+                return Token::MINUS;
+            }
+            _ =&gt; panic!(&quot;Invalid char&quot;),
+        }
+    }
+    Token::EOF
+}
+
+// 3
+fn factor(&amp;mut self) -&gt; i32 {
+    match self.next_token() {
+        Token::INTEGER(i) =&gt; i,
+        _ =&gt; panic!(&quot;Invalid factor&quot;),
+    }
+}
+
+fn expr(&amp;mut self) -&gt; i32 {
+    let lhs = self.factor();
+    let op = self.next_token();
+    match op {
+        // 4
+        Token::PLUS =&gt; lhs + self.factor(),
+        Token::MINUS =&gt; lhs - self.factor(),
+        _ =&gt; panic!(&quot;Invalid op&quot;),
+    }
+}
+</code></pre>
+
+<pre><code>1. 这里使用while let语句来解析current_char中的Option属性,Rust中语法非常灵活,有点脚本语言的意思
+2. 新增解析减号的方法
+3. 新增一个factor方法专门用于解析数字类型
+4. 新增减号操作
+</code></pre>
+
+<p>再次执行cargo test:</p>
+
+<pre><code>   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running target\debug\calc-d41ffd04c8d0c698.exe
+
+running 2 tests
+test tests::test_minus ... ok
+test tests::test_plus ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured
+</code></pre>
+
+<p>测试通过!</p>
+
+<h3 id="忽略空格:4fd93554da16c084d4fa7a87fc116057">忽略空格</h3>
+
+<p>现在我们的计算器代码是不支持解析空格的,当遇到空格时,解析器需要自动略过,首先更新测试用例:</p>
+
+<pre><code class="language-rust">    #[test]
+    fn test_plus() {
+        check(&quot;1+1&quot;, 2);
+        check(&quot;1 + 1&quot;, 2);
+    }
+
+    #[test]
+    fn test_minus() {
+        assert_eq!(calc(&quot;1 - 1&quot;), 0);
+        assert_eq!(calc(&quot;1- 2&quot;), -1);
+        assert_eq!(calc(&quot;2  - 1&quot;), 1);
+    }
+</code></pre>
+
+<p>在Interpreter中增加一个方法skip_whitespace:</p>
+
+<pre><code class="language-rust">fn skip_whitespace(&amp;mut self) {
+    while let Some(c) = self.current_char {
+        if c.is_whitespace() {
+            self.advance();
+        } else {
+            break;
+        }
+    }
+}
+</code></pre>
+
+<p>修改next_token()函数:</p>
+
+<pre><code class="language-rust">fn next_token(&amp;mut self) -&gt; Token {
+    while let Some(c) = self.current_char {
+        // 1
+        if c.is_whitespace() {
+            self.skip_whitespace();
+            continue;
+        }
+
+        if c.is_digit(10) {
+            self.advance();
+            return Token::INTEGER(c.to_digit(10).unwrap() as i32);
+        }
+        match c {
+            '+' =&gt; {
+                self.advance();
+                return Token::PLUS;
+            },
+            '-' =&gt; {
+                self.advance();
+                return Token::MINUS;
+            }
+            _ =&gt; panic!(&quot;Invalid char&quot;),
+        }
+    }
+    Token::EOF
+}
+</code></pre>
+
+<pre><code>1. 忽略空格
+</code></pre>
+
+<p>再次执行cargo test:</p>
+
+<pre><code>   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running target\debug\calc-d41ffd04c8d0c698.exe
+
+running 2 tests
+test tests::test_minus ... ok
+test tests::test_plus ... ok
+
+test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured
+</code></pre>
+
+<p>测试通过!</p>
+
+<h3 id="简单乘除法:4fd93554da16c084d4fa7a87fc116057">简单乘除法</h3>
+
+<p>有了上面的框架,其实实现简单的乘除法已经非常方便了,首先还是增加测试用例:</p>
+
+<pre><code class="language-rust">#[test]
+fn test_mul() {
+    assert_eq!(calc(&quot;1 * 1&quot;), 1);
+    assert_eq!(calc(&quot;9 * 8 &quot;), 72);
+    // assert_eq!(calc(&quot;13 * 11&quot;), 143);
+}
+#[test]
+fn test_div() {
+    assert_eq!(calc(&quot;9/3&quot;), 3);
+    // assert_eq!(calc(&quot;144 / 12 &quot;), 12);
+    // assert_eq!(calc(&quot;90 / 10&quot;), 9);
+}
+</code></pre>
+
+<p>新增两个Token类型:</p>
+
+<pre><code class="language-rust">enum Token {
+    INTEGER(i32),
+    PLUS,
+    MINUS,
+    MUL,
+    DIV,
+    EOF,
+}
+</code></pre>
+
+<p>在next_token方法中新增解析*,/符号的操作:</p>
+
+<pre><code class="language-rust">fn next_token(&amp;mut self) -&gt; Token {
+    while let Some(c) = self.current_char {
+        if c.is_whitespace() {
+            self.skip_whitespace();
+            continue;
+        }
+        if c.is_digit(10) {
+            self.advance();
+            return Token::INTEGER(c.to_digit(10).unwrap() as i32);
+        }
+        match c {
+            '+' =&gt; {
+                self.advance();
+                return Token::PLUS;
+            },
+            '-' =&gt; {
+                self.advance();
+                return Token::MINUS;
+            }
+            '*' =&gt; {
+                self.advance();
+                return Token::MUL;
+            }
+            '/' =&gt; {
+                self.advance();
+                return Token::DIV;
+            }
+            _ =&gt; panic!(&quot;Invalid char&quot;),
+        }
+    }
+    Token::EOF
+}
+</code></pre>
+
+<p>修改计算乘除操作:</p>
+
+<pre><code class="language-rust">fn expr(&amp;mut self) -&gt; i32 {
+    let lhs = self.factor();
+    let op = self.next_token();
+    match op {
+        Token::PLUS =&gt; lhs + self.factor(),
+        Token::MINUS =&gt; lhs - self.factor(),
+        Token::MUL =&gt; lhs * self.factor(),
+        Token::DIV =&gt; lhs / self.factor(),
+        _ =&gt; panic!(&quot;Invalid op&quot;),
+    }
+}
+</code></pre>
+
+<p>运行测试用例cargo test:</p>
+
+<pre><code class="language-rust">   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running target\debug\calc-d41ffd04c8d0c698.exe
+
+running 4 tests
+test tests::test_div ... ok
+test tests::test_mul ... ok
+test tests::test_plus ... ok
+test tests::test_minus ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured
+</code></pre>
+
+<p>测试通过!</p>
+
+<h3 id="多位数加减乘除:4fd93554da16c084d4fa7a87fc116057">多位数加减乘除</h3>
+
+<p>目前的代码只能够支持一位数的加减乘除操作,如何实现多位数操作呢?首先我们还是先更新测试用例:</p>
+
+<pre><code class="language-rust">fn check(expr: &amp;str, expected_result: i32) {
+    assert_eq!(calc(expr), expected_result);
+}
+
+#[test]
+fn test_plus() {
+    check(&quot;19  + 23&quot;, 42);
+}
+
+#[test]
+fn test_minus() {
+    check(&quot;23 - 9&quot;, 14);
+}
+
+#[test]
+fn test_mul() {
+    check(&quot;13 * 11&quot;, 143);
+}
+
+#[test]
+fn test_div() {
+    check(&quot;144 / 12 &quot;, 12);
+    check(&quot;90 / 10&quot;, 9);
+}
+</code></pre>
+
+<p>一些重复的测试这里就不再这里显示了.</p>
+
+<p>可以想到,需要修改解析函数来识别多位数,新增一个方法专门用于解析数字:</p>
+
+<pre><code class="language-rust">fn integer(&amp;mut self) -&gt; i32 {
+    let mut result = String::new();
+    while let Some(c) = self.current_char {
+        if c.is_digit(10) {
+            result.push(c);
+            self.advance();
+        } else {
+            break;
+        }
+    }
+    result.parse::&lt;i32&gt;().unwrap()
+}
+</code></pre>
+
+<p>修改解析函数:</p>
+
+<pre><code class="language-rust">fn next_token(&amp;mut self) -&gt; Token {
+    while let Some(c) = self.current_char {
+        if c.is_whitespace() {
+            self.skip_whitespace();
+            continue;
+        }
+
+        // 1
+        if c.is_digit(10) {
+            return Token::INTEGER(self.integer());
+        }
+        match c {
+            '+' =&gt; {
+                self.advance();
+                return Token::PLUS;
+            },
+            '-' =&gt; {
+                self.advance();
+                return Token::MINUS;
+            }
+            '*' =&gt; {
+                self.advance();
+                return Token::MUL;
+            }
+            '/' =&gt; {
+                self.advance();
+                return Token::DIV;
+            }
+            _ =&gt; panic!(&quot;Invalid char&quot;),
+        }
+    }
+    Token::EOF
+}
+</code></pre>
+
+<pre><code>1. 通过调用integer函数来解析数字类型.
+</code></pre>
+
+<p>再次运行测试用例cargo test:</p>
+
+<pre><code class="language-rust">   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running target\debug\calc-d41ffd04c8d0c698.exe
+
+running 4 tests
+test tests::test_minus ... ok
+test tests::test_div ... ok
+test tests::test_mul ... ok
+test tests::test_plus ... ok
+
+test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured
+</code></pre>
+
+<h3 id="连续加减乘除运算:4fd93554da16c084d4fa7a87fc116057">连续加减乘除运算</h3>
+
+<p>目前代码只支持多位数加减乘除多位数,下一步我们实现多位数的连续加减乘除操作.按照惯例,更新测试用例:</p>
+
+<pre><code class="language-rust">#[test]
+fn test_mul_plus() {
+    check(&quot;1+1+1&quot;, 3);
+    check(&quot;1+2+2&quot;, 5);
+    check(&quot;19  + 23+1&quot;, 43);
+}
+
+#[test]
+fn test_mul_minus() {
+    check(&quot;11-9-9+ 2&quot;, -5);
+}
+
+#[test]
+fn test_mul_mul() {
+    check(&quot;2 * 3 *4&quot;, 24);
+}
+
+#[test]
+fn test_mul_div() {
+    check(&quot;90 / 10 * 2&quot;, 18);
+    check(&quot;9 / 3/ 3&quot;, 1);
+}
+</code></pre>
+
+<p>从测试用例可以看到,我们只要遇到了运算符就继续进行运算:将当前结果继续应用到下一位数字中,其实一个循环操作就能够解决了,因此只需要修改expr方法:</p>
+
+<pre><code class="language-rust">fn expr(&amp;mut self) -&gt; i32 {
+    let mut result = self.factor();
+    loop {
+        match self.next_token() {
+            Token::PLUS =&gt; {
+                result += self.factor();
+            },
+            Token::MINUS =&gt; {
+                result -= self.factor();
+            },
+            Token::MUL =&gt; {
+                result *= self.factor();
+            },
+            Token::DIV =&gt; {
+                result /= self.factor();
+            },
+            _ =&gt; break,
+        }
+    }
+    result
+}
+</code></pre>
+
+<p>很简单,运行一下cargo test:</p>
+
+<pre><code>   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running target\debug\calc-d41ffd04c8d0c698.exe
+
+running 8 tests
+test tests::test_div ... ok
+test tests::test_mul_div ... ok
+test tests::test_mul ... ok
+test tests::test_minus ... ok
+test tests::test_mul_minus ... ok
+test tests::test_mul_mul ... ok
+test tests::test_mul_plus ... ok
+test tests::test_plus ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured
+</code></pre>
+
+<h3 id="重构代码:4fd93554da16c084d4fa7a87fc116057">重构代码</h3>
+
+<p>目前代码有一定规模了,我们所有代码都集中在解释器Interpreter代码中,为了更好的维护代码,限制我们队代码进行重构,将解析和解释进行分离:将解析抽象为Lexer对象,将计算放在Interpreter对象中:</p>
+
+<pre><code class="language-rust">#[derive(Clone, Debug, Eq, PartialEq)]
+enum Token {
+    INTEGER(i32),
+    PLUS,
+    MINUS,
+    MUL,
+    DIV,
+    EOF,
+}
+
+pub struct Lexer {
+    text: String,
+    pos: usize,
+    current_char: Option&lt;char&gt;,
+}
+
+impl Lexer {
+    fn new(text: String) -&gt; Lexer {
+        let mut lexer = Lexer {
+            text: text,
+            pos: 0,
+            current_char: None,
+        };
+        if lexer.text.len() &gt; 0 {
+            lexer.current_char = Some(lexer.text.as_bytes()[0] as char);
+        }
+        lexer
+    }
+
+    fn skip_whitespace(&amp;mut self) {
+        while let Some(c) = self.current_char {
+            if c.is_whitespace() {
+                self.advance();
+            } else {
+                break;
+            }
+        }
+    }
+
+    fn advance(&amp;mut self) {
+        self.pos += 1;
+        if self.pos &gt; self.text.len()-1 {
+            self.current_char = None;
+        } else {
+            self.current_char = Some(self.text.as_bytes()[self.pos] as char);
+        }
+    }
+
+    fn integer(&amp;mut self) -&gt; i32 {
+        let mut result = String::new();
+        while let Some(c) = self.current_char {
+            if c.is_digit(10) {
+                result.push(c);
+                self.advance();
+            } else {
+                break;
+            }
+        }
+        result.parse::&lt;i32&gt;().unwrap()
+    }
+
+    fn next_token(&amp;mut self) -&gt; Token {
+        while let Some(c) = self.current_char {
+            if c.is_whitespace() {
+                self.skip_whitespace();
+                continue;
+            }
+            if c.is_digit(10) {
+                return Token::INTEGER(self.integer());
+            }
+            match c {
+                '+' =&gt; {
+                    self.advance();
+                    return Token::PLUS;
+                },
+                '-' =&gt; {
+                    self.advance();
+                    return Token::MINUS;
+                }
+                '*' =&gt; {
+                    self.advance();
+                    return Token::MUL;
+                }
+                '/' =&gt; {
+                    self.advance();
+                    return Token::DIV;
+                }
+                _ =&gt; panic!(&quot;Invalid char&quot;),
+            }
+        }
+        Token::EOF
+    }
+}
+
+pub struct Interpreter {
+    lexer: Lexer,
+}
+
+impl Interpreter {
+    fn new(lexer: Lexer) -&gt; Interpreter {
+        Interpreter {
+            lexer: lexer,
+        }
+    }
+
+    fn factor(&amp;mut self) -&gt; i32 {
+        match self.lexer.next_token() {
+            Token::INTEGER(i) =&gt; i,
+            _ =&gt; panic!(&quot;Invalid factor&quot;),
+        }
+    }
+
+    fn expr(&amp;mut self) -&gt; i32 {
+        let mut result = self.factor();
+        loop {
+            match self.lexer.next_token() {
+                Token::PLUS =&gt; {
+                    result += self.factor();
+                },
+                Token::MINUS =&gt; {
+                    result -= self.factor();
+                },
+                Token::MUL =&gt; {
+                    result *= self.factor();
+                },
+                Token::DIV =&gt; {
+                    result /= self.factor();
+                },
+                _ =&gt; break,
+            }
+        }
+        result
+    }
+}
+</code></pre>
+
+<p>由于有测试用例做支撑,重构起来其实非常有信心,运行一下cargo test:</p>
+
+<pre><code class="language-rust">   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running target\debug\calc-d41ffd04c8d0c698.exe
+
+running 8 tests
+test tests::test_mul ... ok
+test tests::test_div ... ok
+test tests::test_mul_div ... ok
+test tests::test_minus ... ok
+test tests::test_mul_minus ... ok
+test tests::test_mul_mul ... ok
+test tests::test_mul_plus ... ok
+test tests::test_plus ... ok
+
+test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured
+</code></pre>
+
+<p>测试通过!</p>
+
+<h3 id="支持运算符优先级:4fd93554da16c084d4fa7a87fc116057">支持运算符优先级</h3>
+
+<p>按照惯例,添加测试用例:</p>
+
+<pre><code class="language-rust">#[test]
+fn test_multi_ops() {
+    check(&quot;1 + 2*3&quot;, 7);
+    check(&quot;8 * 3 + 1&quot;, 25);
+    check(&quot;8 * 3 + 2*5&quot;, 34);
+}
+</code></pre>
+
+<p>这一步是计算器的一个难点,优先级一共有两个级别:</p>
+
+<pre><code>1. * /
+2. + -
+</code></pre>
+
+<p>乘除的优先级是高于加减的,因此我们在解析时,需要优先解析乘除,再解析加减,修改代码如下:</p>
+
+<pre><code class="language-rust">fn consume(&amp;mut self, token: Token) {
+    if Some(token) == self.current_token {
+        self.current_token = Some(self.lexer.next_token());
+    } else {
+        panic!(&quot;Invalid consume&quot;);
+    }
+}
+
+fn factor(&amp;mut self) -&gt; i32 {
+    if let Some(token) = self.current_token.clone() {
+        match token {
+            Token::INTEGER(i) =&gt; {
+                self.consume(Token::INTEGER(i));
+                return i;
+            },
+            _ =&gt; panic!(&quot;Invalid token&quot;),
+        }
+    }
+    panic!(&quot;Invalid factor&quot;);
+}
+
+fn term(&amp;mut self) -&gt; i32 {
+    let mut result = self.factor();
+    while let Some(token) = self.current_token.clone() {
+        match token {
+            Token::MUL =&gt; {
+                self.consume(Token::MUL);
+                result *= self.factor();
+            },
+            Token::DIV =&gt; {
+                self.consume(Token::DIV);
+                result /= self.factor();
+            },
+            _ =&gt; break,
+        }
+    }
+    result
+}
+
+fn expr(&amp;mut self) -&gt; i32 {
+    let mut result = self.term();
+    while let Some(token) = self.current_token.clone() {
+        match token {
+            Token::PLUS =&gt; {
+                self.consume(Token::PLUS);
+                result += self.term();
+            },
+            Token::MINUS =&gt; {
+                self.consume(Token::MINUS);
+                result -= self.term();
+            },
+            _ =&gt; break,
+        }
+    }
+    result
+}
+</code></pre>
+
+<pre><code>0. factor =&gt; int
+1. term =&gt; * /
+2. expr =&gt; + -
+</code></pre>
+
+<p>代码中我们通过这三级解析方式来处理优先级的问题,这样就能够正确计算四则运算了.</p>
+
+<p>运行测试用例:</p>
+
+<pre><code>   Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
+     Running target\debug\calc-d41ffd04c8d0c698.exe
+
+running 9 tests
+test tests::test_div ... ok
+test tests::test_mul ... ok
+test tests::test_minus ... ok
+test tests::test_mul_div ... ok
+test tests::test_mul_minus ... ok
+test tests::test_mul_mul ... ok
+test tests::test_mul_plus ... ok
+test tests::test_multi_ops ... ok
+test tests::test_plus ... ok
+
+test result: ok. 9 passed; 0 failed; 0 ignored; 0 measured
+</code></pre>
+
+<p>测试通过!</p>
+
+<p>通过以上讲解,我们就把基本的四则运算在Rust中实现了,Rust自带的单元测试模块能够很好的保证代码的正确性,我们也可以使用这些测试模块来进行自测.</p>
+
+<p>本项目中还对代码进行了一定的优化,使用AST(抽象语法树)来描述运算,增加括号,一元运算符等,这里就不再详细描述了,可以查看本项目代码进行深入了解,谢谢!</p>
+
+        </div>
+
+
+        <aside>
+          <div class="section"><a href="https://heychenbin.github.io/tags/rust" class="tag">rust</a> <a href="https://heychenbin.github.io/tags/programming" class="tag">programming</a> </div>
+
+          <div class="section share">
+            <a href="http://www.facebook.com/sharer.php?src=bm&u=https%3a%2f%2fheychenbin.github.io%2fpost%2ftdd-in-rust-1%2f&t=TDD%20in%20Rust" onclick="window.open(this.href, 'PCwindow', 'width=550, height=350, menubar=no, toolbar=no, scrollbars=yes'); return false;"><i class="fa fa-facebook"></i></a>
+            <a href="http://twitter.com/intent/tweet?url=https%3a%2f%2fheychenbin.github.io%2fpost%2ftdd-in-rust-1%2f&text=TDD%20in%20Rust&tw_p=tweetbutton" onclick="window.open(this.href, 'PCwindow', 'width=550, height=350, menubar=no, toolbar=no, scrollbars=yes'); return false;"><i class="fa fa-twitter"></i></a>
+            <a href="https://plus.google.com/share?url=https%3a%2f%2fheychenbin.github.io%2fpost%2ftdd-in-rust-1%2f" onclick="window.open(this.href, 'PCwindow', 'width=550, height=350, menubar=no, toolbar=no, scrollbars=yes'); return false;"><i class="fa fa-google-plus"></i></a>
+            <a href="http://getpocket.com/edit?url=https%3a%2f%2fheychenbin.github.io%2fpost%2ftdd-in-rust-1%2f&title=TDD%20in%20Rust" onclick="window.open(this.href, 'PCwindow', 'width=550, height=350, menubar=no, toolbar=no, scrollbars=yes'); return false;"><i class="fa fa-get-pocket"></i></a>
+          </div>
+
+          
+          
+          <div id="disqus_thread"></div>
+          <script type="text/javascript">
+(function() {
+  var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+  var disqus_shortname = 'gochenbin';
+  dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+  (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();
+          </script>
+          <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+          <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+          
+          
+        </aside>
+
+      </article>
+    </div>
+
+    <div class="col-sm-3">
+      <aside class="site">
+
+  
+  <div class="section">
+    <header><div class="title">TableOfContents</div></header>
+    <div class="list-default"><nav id="TableOfContents">
+<ul>
+<li>
+<ul>
+<li><a href="#intro:4fd93554da16c084d4fa7a87fc116057">Intro</a></li>
+<li><a href="#cargo:4fd93554da16c084d4fa7a87fc116057">Cargo</a>
+<ul>
+<li><a href="#创建项目:4fd93554da16c084d4fa7a87fc116057">创建项目</a></li>
+</ul></li>
+<li><a href="#计算器:4fd93554da16c084d4fa7a87fc116057">计算器</a>
+<ul>
+<li><a href="#测试用例:4fd93554da16c084d4fa7a87fc116057">测试用例</a></li>
+<li><a href="#简单加法:4fd93554da16c084d4fa7a87fc116057">简单加法</a></li>
+<li><a href="#简单减法:4fd93554da16c084d4fa7a87fc116057">简单减法</a></li>
+<li><a href="#忽略空格:4fd93554da16c084d4fa7a87fc116057">忽略空格</a></li>
+<li><a href="#简单乘除法:4fd93554da16c084d4fa7a87fc116057">简单乘除法</a></li>
+<li><a href="#多位数加减乘除:4fd93554da16c084d4fa7a87fc116057">多位数加减乘除</a></li>
+<li><a href="#连续加减乘除运算:4fd93554da16c084d4fa7a87fc116057">连续加减乘除运算</a></li>
+<li><a href="#重构代码:4fd93554da16c084d4fa7a87fc116057">重构代码</a></li>
+<li><a href="#支持运算符优先级:4fd93554da16c084d4fa7a87fc116057">支持运算符优先级</a></li>
+</ul></li>
+</ul></li>
+</ul>
+</nav></div>
+  </div>
+  
+
+  
+
+  <div class="section">
+    <header><div class="title">LatestPosts</div></header>
+    <div class="content">
+      
+      <div class="sm"><article class="li">
+  <a href="https://heychenbin.github.io/post/tdd-in-rust-1/" class="clearfix">
+    <div class="image" style="background-image: url(https://heychenbin.github.io/images/views.jpg);"></div>
+    <div class="detail">
+      <time>Wed, Apr 20, 2016</time>
+      <h2 class="title">TDD in Rust</h2>
+      <div class="summary">Intro Rust 是一门系统编程语言,目标是帮助程序员写出安全,快速的代码. Cargo Cargo是Rust中的包管理器,默认集成在安装包里边.通过使用Cargo可以方便管理Rust中的依赖,进行单元测试以及构建版本. 创建项目 首先通过Cargo创建一个项目calc: Cargo create calc --bin 这会在当前目录下生成一个calc的目录,在该目录下的src文件夹下有一个main.rs,就是我们的主程序代码了.这个其中包括了一个简单的hello world程序,我们运行一下看看: cd calc Cargo run 输出: Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc) Running `target\debug\calc.exe` Hello, world! Cargo会自动编译当前项目的代码并生成exe程序执行. 计算器 下面以计算器为示例,介绍Rust的一些基本特性和用法.通常我学习一门新语言都会使用这么语言编写一些代码作为练习,现在我比较喜欢编写四则运算器来作为练习. 我希望达到的效果是实现四则运算,支持括号,加减乘除以及正负号等操作: &gt; 1 + 2 * (3-1) = 5 &gt; 9 +-+---+++---8 = 1 我以TDD的方式来实现这样一个程序. 测试用例 Rust一个很好的特性就是集成了单元测试工具,可以很方便我们做TDD编程,在我们的main.rs最后增加如下代码: #[cfg(test)] mod tests { #[test] fn test_plus() { assert_eq!(1, 0); } } 通过Cargo进行测试: Cargo test 输出: Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc) Running D:\home\Projects\tmp\calc\target\debug\calc-a5ab18be1f87e4e3.exe running 1 test test tests::test_plus ...</div>
+    </div>
+  </a>
+</article>
+</div>
+      
+    </div>
+  </div>
+
+  
+  <div class="section taxonomies">
+    <header><div class="title">category</div></header>
+    <div class="content">
+      <a href="https://heychenbin.github.io/categories/development">development</a><a href="https://heychenbin.github.io/categories/rust">rust</a>
+    </div>
+  </div>
+  
+  <div class="section taxonomies">
+    <header><div class="title">tag</div></header>
+    <div class="content">
+      <a href="https://heychenbin.github.io/tags/rust">rust</a><a href="https://heychenbin.github.io/tags/programming">programming</a>
+    </div>
+  </div>
+  
+
+</aside>
+
+    </div>
+
+  </div>
+
+      </div>
+
+    <footer class="site">
+      <p>&copy; 2016 Chenbin</p>
+      <p>Powered by <a href="http://gohugo.io" target="_blank" rel="nofollow">Hugo</a>, Theme <a href="https://github.com/dim0627/hugo_theme_robust" target="_blank" rel="nofollow">robust</a> designed by <a href="http://yet.unresolved.xyz" target="_blank" rel="nofollow">Daisuke Tsuji</a></p>
+    </footer>
+
+    <script src="//code.jquery.com/jquery-2.1.3.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.4/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+
+    
+
+  </body>
+</html>
+
+</div>
