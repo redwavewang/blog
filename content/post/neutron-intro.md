@@ -2,11 +2,15 @@
 date = "2015-04-21T15:22:18+08:00"
 draft = false
 title = "neutron 简介"
-Tags = ["openstack"]
-Categories = ["Development"]
+tags = ["openstack"]
+topics = ["Development"]
 +++
 
-首先通过nova查看当前虚拟机的id：
+neutron是OpenStack项目中用于网络控制的模块,用于替代nova network的,本文简单介绍了neutron的基本结构.
+
+<!--more-->
+
+首先通过nova查看当前虚拟机的id:
 
     [root@controllera-30 ~(keystone_admin)]# nova show win7-desk25
     +--------------------------------------+----------------------------------------------------------+
@@ -43,12 +47,12 @@ Categories = ["Development"]
     | user_id                              | 1910f945b7c34e50be16e0be51bc13aa                         |
     +--------------------------------------+----------------------------------------------------------+
 
-可以看到这个虚拟机的实例名为instance-00000006，运行在host-27主机上。根 据这些信息，在host-27上查询该虚拟机的domid：
+可以看到这个虚拟机的实例名为instance-00000006,运行在host-27主机上.根 据这些信息,在host-27上查询该虚拟机的domid:
 
     [root@host-27 ~]# virsh list | grep instance-00000006
     5     instance-00000006              running
 
-通过dumpxml相关信息，可以查看到对应的网卡信息：
+通过dumpxml相关信息,可以查看到对应的网卡信息:
 
     [root@host-27 ~]# virsh dumpxml 5 | grep tap -b3
     2081-    <interface type='bridge'>
@@ -59,7 +63,7 @@ Categories = ["Development"]
     2258-      <driver name='qemu'/>
     2286-      <alias name='net0'/>
 
-可以看到虚拟机网卡设备是tapaadd565d-89，连接到网桥qbraadd565d-89，网桥 信息可以通过brctl来查看：
+可以看到虚拟机网卡设备是tapaadd565d-89,连接到网桥qbraadd565d-89,网桥 信息可以通过brctl来查看:
 
     [root@host-27 ~]# brctl show
     bridge name     bridge id               STP enabled     interfaces
@@ -67,9 +71,9 @@ Categories = ["Development"]
                                                             tapaadd565d-89
     virbr0          8000.000000000000       yes
 
-由于现在OpenStack使用Linux网桥的安全策略，因此创建虚拟机时，会先在 Linux网桥上创建port，并将虚拟机连接上去，然后再将该网桥上的端口连接到 对应的ovs网桥上去。
+由于现在OpenStack使用Linux网桥的安全策略,因此创建虚拟机时,会先在 Linux网桥上创建port,并将虚拟机连接上去,然后再将该网桥上的端口连接到 对应的ovs网桥上去.
 
-通过ovs命令可以查看对应的br-int上的port端口：
+通过ovs命令可以查看对应的br-int上的port端口:
 
     [root@host-27 ~]# ovs-vsctl show
     057b47ea-32c4-4a5f-8762-6fe377c7c2a5
@@ -93,17 +97,17 @@ Categories = ["Development"]
                 Interface "eth1"
         ovs_version: "2.3.0"
 
-可以看到，在ovs网桥上有一个对应的端口qvoaadd565d-89，这个端口和Linux网 桥上的qvbaadd565d-89端口是一对veth pair，相当于一根网线的两头，数据分 别从一端进入然后从另一端出来。这两个端口一端连接到Linux网桥，一端连接 到ovs内部网桥br-int上。
+可以看到,在ovs网桥上有一个对应的端口qvoaadd565d-89,这个端口和Linux网 桥上的qvbaadd565d-89端口是一对veth pair,相当于一根网线的两头,数据分 别从一端进入然后从另一端出来.这两个端口一端连接到Linux网桥,一端连接 到ovs内部网桥br-int上.
 
-通过上面ovs的信息，br-int和br-eth1两个网桥之间也有一对veth pair，分别 是int-br-eth1和phy-br-eth1。这对veth pair负责将内部网桥和外部网桥连接 起来，内部网桥负责连接各个虚拟机，以及网桥内部虚拟机之间的消息通信。而 外部网桥负责和外部进行网络通信。
+通过上面ovs的信息,br-int和br-eth1两个网桥之间也有一对veth pair,分别 是int-br-eth1和phy-br-eth1.这对veth pair负责将内部网桥和外部网桥连接 起来,内部网桥负责连接各个虚拟机,以及网桥内部虚拟机之间的消息通信.而 外部网桥负责和外部进行网络通信.
 
-为了查看veth pair可以通过命令来查看：
+为了查看veth pair可以通过命令来查看:
 
     [root@host-27 ~]# ethtool -S qvoaadd565d-89
     NIC statistics:
          peer_ifindex: 35
 
-查看qvoxxxxxx对应的配对，通过上述命令可看到对应的index信息，再通过ip link来查看对应的信息
+查看qvoxxxxxx对应的配对,通过上述命令可看到对应的index信息,再通过ip link来查看对应的信息
 
     [root@host-27 ~]# ip link | grep aadd565d-89
     33: qbraadd565d-89: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc noqueue state UP mode DEFAULT
@@ -111,9 +115,9 @@ Categories = ["Development"]
     35: qvbaadd565d-89: <BROADCAST,MULTICAST,PROMISC,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master qbraadd565d-89 state UP mode DEFAULT qlen 1000
     37: tapaadd565d-89: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast master qbraadd565d-89 state UNKNOWN mode DEFAULT qlen 500
 
-可以看到qvoaadd565d-89和qvoaadd565d-89是一对veth pair。
+可以看到qvoaadd565d-89和qvoaadd565d-89是一对veth pair.
 
-在计算节点上大致的一个连接示意图如下所示：
+在计算节点上大致的一个连接示意图如下所示:
 
            +------------------------+
            |  instance-00000006     |
@@ -152,6 +156,6 @@ Categories = ["Development"]
                              |         Network
     -------------------------+-------------------------------
 
-如果配置了vlan，那么在br-int内部，所有网络包会打上内部的tag标签，如 tag3，但是通过br-eth1时，会将这个内部标签修改为外部标签，例如tag1000。 这个转换是根据openstack配置信息，当前网络允许的vlan tag范围来进行映射 的。
+如果配置了vlan,那么在br-int内部,所有网络包会打上内部的tag标签,如 tag3,但是通过br-eth1时,会将这个内部标签修改为外部标签,例如tag1000. 这个转换是根据openstack配置信息,当前网络允许的vlan tag范围来进行映射 的.
 
-通过tcpdump抓包可以发现，在通过phy-br-eth1端口上的包仍然是tag3的内部 tag，但是从eth1流出的包就被转换成了tag1000，可以了解到这个转换是在 br-eth1内部进行的。
+通过tcpdump抓包可以发现,在通过phy-br-eth1端口上的包仍然是tag3的内部 tag,但是从eth1流出的包就被转换成了tag1000,可以了解到这个转换是在 br-eth1内部进行的.

@@ -1,0 +1,6 @@
+#!/usr/bin/bash
+
+hugo --theme=blackburn
+cp -rf public/* ../heychenbin.github.io/
+cd ../heychenbin.github.io
+./up

@@ -3,14 +3,15 @@ date = "2016-04-20T09:46:25+08:00"
 draft = false
 title = "TDD in Rust"
 image = "views.jpg"
-Tags = ["rust", "programming"]
-Categories = ["Development", "rust"]
+tags = ["rust", "programming"]
+topics = ["Development"]
 +++
 
 ## Intro
 
-Rust 是一门系统编程语言,目标是帮助程序员写出安全,快速的代码.
+Rust 是一门系统编程语言,目标是帮助程序员写出安全,快速的代码.本文将以TDD的方式使用Rust中创建一个计算器.
 
+<!--more-->
 
 ## Cargo
 

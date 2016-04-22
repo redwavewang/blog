@@ -14,7 +14,7 @@ paginate = 10
 [params]
   # Shown in the home page
   # subtitle = "洞主木鹿大王"
-  brand = "BlackBurn"
+  brand = "Wood Deer"
   # googleAnalytics = "Your Google Analytics tracking ID"
   disqus = "gochenbin"
   # CSS name for highlight.js
