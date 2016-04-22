@@ -1,6 +1,6 @@
-baseurl = "https://heychenbin.github.io/"
-languageCode = "zh-cn"
-title = "八纳洞"
+baseurl = "http://replace-this-with-your-hugo-site.com/"
+languageCode = "en-us"
+title = "Blackburn Theme Demo"
 theme = "blackburn"
 author = "Yoshiharu Yamashita"
 copyright = "&copy; 2016. All rights reserved."
@@ -13,12 +13,12 @@ paginate = 10
 
 [params]
   # Shown in the home page
-  # subtitle = "洞主木鹿大王"
-  brand = "BlackBurn"
-  # googleAnalytics = "Your Google Analytics tracking ID"
-  disqus = "gochenbin"
+  subtitle = "A Hugo Theme"
+  brand = "Blackburn"
+  googleAnalytics = "Your Google Analytics tracking ID"
+  disqus = "Your Disqus shortname"
   # CSS name for highlight.js
-  highlightjs = "solarized_dark"
+  highlightjs = "androidstudio"
   dateFormat = "02 Jan 2006, 15:04"
 
 [menu]
@@ -50,9 +50,9 @@ paginate = 10
 [social]
   # Link your social networking accouns to the side menu
   # by entering your username or ID.
-  twitter = "heychenbin"
-  # facebook = "*"
-  # instagram = "*"
-  github = "heychenbin"
-  stackoverflow = "heychenbin"
-  # linkedin = "*"
+  twitter = "*"
+  facebook = "*"
+  instagram = "*"
+  github = "yoshiharuyamashita"
+  stackoverflow = "*"
+  linkedin = "*"
