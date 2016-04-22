@@ -61,7 +61,7 @@ Cargo会自动编译当前项目的代码并生成exe程序执行.
 
 Rust一个很好的特性就是集成了单元测试工具,可以很方便我们做TDD编程,在我们的main.rs最后增加如下代码:
 
-```Rust
+```cpp
 #[cfg(test)]
 mod tests {
     #[test]
@@ -104,7 +104,7 @@ test result: FAILED. 0 passed; 1 failed; 0 ignored; 0 measured
 
 下一步,我们开始实现计算器,首先最简单的测试用例:1 + 1 = 2.
 
-```Rust
+```cpp
 #[cfg(test)]
 mod tests {
     fn calc(expr: &str) -> i32 {
@@ -125,7 +125,7 @@ mod tests {
 
 下面可以开始设计代码了.为了方便解析,我们首先定义一系列Token表示解析表达式的类型信息:
 
-```Rust
+```cpp
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum Token {
     INTEGER(i32),
@@ -142,7 +142,7 @@ enum Token {
 
 下一步,定义我们的解析器:
 
-```Rust
+```cpp
 pub struct Interpreter {
     text: String,
     pos: usize,
@@ -152,7 +152,7 @@ pub struct Interpreter {
 
 Rust中使用struct来定义一个类型,当前的Interpreter包含三个属性,分别是输入字符,当前解析位置,和当前字符,前面两个属性类型都很好理解.最后一个类型为Option,这个Option在Rust中也是一个enum类型:
 
-```Rust
+```cpp
 pub enum Option<T> {
     None,
     Some(T)
@@ -161,9 +161,11 @@ pub enum Option<T> {
 
 源码中这样定义Option,可以看到他要么是一个None,要么是一个类型为T的值,在Rust中可以经常看到这样的表示方式,后续我们在看如何使用.
 
-```Rust
+```cpp
 impl Interpreter {
-    // 1
+    // 这个方法就是实例化一个Interpreter类型的方法new,Rust中默认使用new
+    // 方法来初始化一个类型.在这段的末尾,单独一个interpreter表示返回该值.这也
+    // 是Rust的一个特性,最后一条语句不带分号结束为返回值.
     fn new(text: String) -> Interpreter {
         let mut interpreter = Interpreter {
             text: text,
@@ -181,7 +183,7 @@ impl Interpreter {
         if self.pos > self.text.len()-1 {
             self.current_char = None;
         } else {
-            // 2
+            // 这里使用Option中的Some()来表示
             self.current_char = Some(self.text.as_bytes()[self.pos] as char);
         }
     }
@@ -190,7 +192,7 @@ impl Interpreter {
         while let Some(c) = self.current_char {
             if c.is_digit(10) {
                 self.advance();
-                // 3
+                // 使用枚举中的INTEGER(i32)来表示解析出来的值,后续通过匹配就能够直接获取这个值
                 return Token::INTEGER(c.to_digit(10).unwrap() as i32);
             }
 
@@ -199,7 +201,9 @@ impl Interpreter {
                     self.advance();
                     return Token::PLUS;
                 },
-                // 4
+                // Rust使用match来进行匹配,有点类似于C/C++中的switch,只是功能更强大.match默认
+                // 情况下不会像C/C++一样匹配后不break则会继续运行下一个分支,默认只会匹配一个分
+                // 支然后自动break,default分支使用 _ => 来表示.
                 _ => panic!("Invalid char"),
             }
         }
@@ -229,11 +233,6 @@ impl Interpreter {
 }
 ```
 
-    1. 上面这个方法就是实例化一个Interpreter类型的方法new,Rust中默认使用new方法来初始化一个类型.在这段的末尾,单独一个interpreter表示返回该值.这也是Rust的一个特性,最后一条语句不带分号结束为返回值.
-    2. 这里使用Option中的Some()来表示
-    3. 使用枚举中的INTEGER(i32)来表示解析出来的值,后续通过匹配就能够直接获取这个值
-    4. Rust使用match来进行匹配,有点类似于C/C++中的switch,只是功能更强大.match默认情况下不会像C/C++一样匹配后不break则会继续运行下一个分支,默认只会匹配一个分支然后自动break,default分支使用 _ => 来表示.
-
 实现以上代码后,再次在命令行中执行:
 
 ```sh
@@ -258,7 +257,7 @@ test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured
 
 下一步,我们实现简单减法,也就是一位数的减法,首先更新测试用例:
 
-```rust
+```cpp
 #[test]
 fn test_minus() {
     assert_eq!(calc("1-1"), 0);
@@ -269,7 +268,7 @@ fn test_minus() {
 
 为了实现减法,需要增加一个Token类型:
 
-```rust
+```cpp
 enum Token {
     INTEGER(i32),
     PLUS,
@@ -280,9 +279,9 @@ enum Token {
 
 重构一下Interpreter代码:
 
-```rust
+```cpp
 fn next_token(&mut self) -> Token {
-    // 1
+    // 这里使用while let语句来解析current_char中的Option属性,Rust中语法非常灵活,有点脚本语言的意思
     while let Some(c) = self.current_char {
         if c.is_digit(10) {
             self.advance();
@@ -293,7 +292,7 @@ fn next_token(&mut self) -> Token {
                 self.advance();
                 return Token::PLUS;
             },
-            // 2
+            // 新增解析减号的方法
             '-' => {
                 self.advance();
                 return Token::MINUS;
@@ -304,7 +303,7 @@ fn next_token(&mut self) -> Token {
     Token::EOF
 }
 
-// 3
+// 新增一个factor方法专门用于解析数字类型
 fn factor(&mut self) -> i32 {
     match self.next_token() {
         Token::INTEGER(i) => i,
@@ -316,18 +315,13 @@ fn expr(&mut self) -> i32 {
     let lhs = self.factor();
     let op = self.next_token();
     match op {
-        // 4
+        // 新增减号操作
         Token::PLUS => lhs + self.factor(),
         Token::MINUS => lhs - self.factor(),
         _ => panic!("Invalid op"),
     }
 }
 ```
-
-    1. 这里使用while let语句来解析current_char中的Option属性,Rust中语法非常灵活,有点脚本语言的意思
-    2. 新增解析减号的方法
-    3. 新增一个factor方法专门用于解析数字类型
-    4. 新增减号操作
 
 再次执行cargo test:
 
@@ -349,7 +343,7 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured
 
 现在我们的计算器代码是不支持解析空格的,当遇到空格时,解析器需要自动略过,首先更新测试用例:
 
-```rust
+```cpp
     #[test]
     fn test_plus() {
         check("1+1", 2);
@@ -366,7 +360,7 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured
 
 在Interpreter中增加一个方法skip_whitespace:
 
-```rust
+```cpp
 fn skip_whitespace(&mut self) {
     while let Some(c) = self.current_char {
         if c.is_whitespace() {
@@ -380,10 +374,10 @@ fn skip_whitespace(&mut self) {
 
 修改next_token()函数:
 
-```rust
+```cpp
 fn next_token(&mut self) -> Token {
     while let Some(c) = self.current_char {
-        // 1
+        // 忽略空格
         if c.is_whitespace() {
             self.skip_whitespace();
             continue;
@@ -409,8 +403,6 @@ fn next_token(&mut self) -> Token {
 }
 ```
 
-    1. 忽略空格
-
 再次执行cargo test:
 
 ```
@@ -430,7 +422,7 @@ test result: ok. 2 passed; 0 failed; 0 ignored; 0 measured
 
 有了上面的框架,其实实现简单的乘除法已经非常方便了,首先还是增加测试用例:
 
-```rust
+```cpp
 #[test]
 fn test_mul() {
     assert_eq!(calc("1 * 1"), 1);
@@ -447,7 +439,7 @@ fn test_div() {
 
 新增两个Token类型:
 
-```rust
+```cpp
 enum Token {
     INTEGER(i32),
     PLUS,
@@ -460,7 +452,7 @@ enum Token {
 
 在next_token方法中新增解析*,/符号的操作:
 
-```rust
+```cpp
 fn next_token(&mut self) -> Token {
     while let Some(c) = self.current_char {
         if c.is_whitespace() {
@@ -497,7 +489,7 @@ fn next_token(&mut self) -> Token {
 
 修改计算乘除操作:
 
-```rust
+```cpp
 fn expr(&mut self) -> i32 {
     let lhs = self.factor();
     let op = self.next_token();
@@ -513,7 +505,7 @@ fn expr(&mut self) -> i32 {
 
 运行测试用例cargo test:
 
-```rust
+```cpp
    Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
      Running target\debug\calc-d41ffd04c8d0c698.exe
 
@@ -532,7 +524,7 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured
 
 目前的代码只能够支持一位数的加减乘除操作,如何实现多位数操作呢?首先我们还是先更新测试用例:
 
-```rust
+```cpp
 fn check(expr: &str, expected_result: i32) {
     assert_eq!(calc(expr), expected_result);
 }
@@ -564,7 +556,7 @@ fn test_div() {
 
 可以想到,需要修改解析函数来识别多位数,新增一个方法专门用于解析数字:
 
-```rust
+```cpp
 fn integer(&mut self) -> i32 {
     let mut result = String::new();
     while let Some(c) = self.current_char {
@@ -581,7 +573,7 @@ fn integer(&mut self) -> i32 {
 
 修改解析函数:
 
-```rust
+```cpp
 fn next_token(&mut self) -> Token {
     while let Some(c) = self.current_char {
         if c.is_whitespace() {
@@ -589,7 +581,7 @@ fn next_token(&mut self) -> Token {
             continue;
         }
 
-        // 1
+        // 通过调用integer函数来解析数字类型.
         if c.is_digit(10) {
             return Token::INTEGER(self.integer());
         }
@@ -617,11 +609,9 @@ fn next_token(&mut self) -> Token {
 }
 ```
 
-    1. 通过调用integer函数来解析数字类型.
-
 再次运行测试用例cargo test:
 
-```rust
+```cpp
    Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
      Running target\debug\calc-d41ffd04c8d0c698.exe
 
@@ -638,7 +628,7 @@ test result: ok. 4 passed; 0 failed; 0 ignored; 0 measured
 
 目前代码只支持多位数加减乘除多位数,下一步我们实现多位数的连续加减乘除操作.按照惯例,更新测试用例:
 
-```rust
+```cpp
 #[test]
 fn test_mul_plus() {
     check("1+1+1", 3);
@@ -665,7 +655,7 @@ fn test_mul_div() {
 
 从测试用例可以看到,我们只要遇到了运算符就继续进行运算:将当前结果继续应用到下一位数字中,其实一个循环操作就能够解决了,因此只需要修改expr方法:
 
-```rust
+```cpp
 fn expr(&mut self) -> i32 {
     let mut result = self.factor();
     loop {
@@ -712,7 +702,7 @@ test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured
 
 目前代码有一定规模了,我们所有代码都集中在解释器Interpreter代码中,为了更好的维护代码,限制我们队代码进行重构,将解析和解释进行分离:将解析抽象为Lexer对象,将计算放在Interpreter对象中:
 
-```rust
+```cpp
 #[derive(Clone, Debug, Eq, PartialEq)]
 enum Token {
     INTEGER(i32),
@@ -851,7 +841,7 @@ impl Interpreter {
 
 由于有测试用例做支撑,重构起来其实非常有信心,运行一下cargo test:
 
-```rust
+```cpp
    Compiling calc v0.1.0 (file:///D:/Home/Projects/tmp/calc)
      Running target\debug\calc-d41ffd04c8d0c698.exe
 
@@ -875,7 +865,7 @@ test result: ok. 8 passed; 0 failed; 0 ignored; 0 measured
 
 按照惯例,添加测试用例:
 
-```rust
+```cpp
 #[test]
 fn test_multi_ops() {
     check("1 + 2*3", 7);
@@ -891,7 +881,7 @@ fn test_multi_ops() {
 
 乘除的优先级是高于加减的,因此我们在解析时,需要优先解析乘除,再解析加减,修改代码如下:
 
-```rust
+```cpp
 fn consume(&mut self, token: Token) {
     if Some(token) == self.current_token {
         self.current_token = Some(self.lexer.next_token());
