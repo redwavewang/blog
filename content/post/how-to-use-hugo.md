@@ -10,7 +10,6 @@ topics = ["blog"]
 
 Hugo 是一个用 Go 语言编写的静态网站生成器,简单易用.Hugo可以在任何平台上使用,只需要下载二进制文件即可使用,使用起来完全无痛!
 
-
 <!--more-->
 
 ## Step 1. 安装Hugo
@@ -73,13 +72,7 @@ hello world
 <!--more-->
 ```
 
-这样第一篇日志就创建成功了.注意,可以通过添加
-
-```
-<!--more-->
-```
-
-来分隔简介和内容,这样在主页上就只会显示该项前的内容.
+这样第一篇日志就创建成功了.注意,可以通过添加一行<\!--more-->来分隔简介和内容,这样在主页上就只会显示该项前的内容.相当于为首页提供一个提要.
 
 ## Step 4. 创建主题
 
@@ -195,4 +188,33 @@ $ hugo server --theme=blackburn
 $ hugo --theme=blackburn
 ```
 
-会在当前目录下生成一个public文件夹,这个就是我们发布出来的网站了,通过github的网页服务,就可以展示我们的静态博客了.
+会在当前目录下生成一个public文件夹,这个就是我们发布出来的网站了,通过
+github的网页服务,就可以展示我们的静态博客了.
+
+## Step 7. CDN加速
+
+默认下载的主题中有一些css，js文件的加速链接，但是由于在国内网速的问题，需要修改为国内的一些替代CDN服务的链接，目前我遇到的有如下这些：
+
+```
+https://cdnjs.cloudflare.com/ajax/libs/pure/0.6.0/
+--->
+https://cdn.bootcss.com/pure/0.6.0/
+
+
+https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css
+--->
+https://cdn.bootcss.com/font-awesome/4.5.0/css/font-awesome.css
+
+
+https://fonts.googleapis.com/css?family=Raleway
+google字体没有找到，可以直接注释掉
+
+//cdnjs.cloudflare.com/ajax/libs/highlight.js
+--->
+//cdn.bootcss.com/highlight.js
+
+
+//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.1.0/highlight.min.js
+--->
+//cdn.bootcss.com/highlight.js/9.2.0/highlight.min.js
+```
