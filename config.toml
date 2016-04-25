@@ -18,7 +18,8 @@ paginate = 10
   # googleAnalytics = "Your Google Analytics tracking ID"
   disqus = "gochenbin"
   # CSS name for highlight.js
-  highlightjs = "solarized_dark"
+  # highlightjs = "solarized_light"
+  highlightjs = "github"
   dateFormat = "02 Jan 2006, 15:04"
 
 [menu]
